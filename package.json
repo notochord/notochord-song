@@ -1,0 +1,19 @@
+{
+  "name": "notochord-song",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "http-server"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/notochord/notochord-song.git"
+  },
+  "author": "Jacob Bloom",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/notochord/notochord-song/issues"
+  },
+  "homepage": "https://github.com/notochord/notochord-song#readme"
+}
