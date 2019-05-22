@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/notochord/notochord-song/issues"
   },
-  "homepage": "https://github.com/notochord/notochord-song#readme"
+  "homepage": "https://github.com/notochord/notochord-song#readme",
+  "dependencies": {
+    "tonal": "^2.2.2"
+  }
 }
