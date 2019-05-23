@@ -18,7 +18,7 @@ export default class SongIterator {
    * @returns {Measure}
    */
   getRelative(delta = 0) {
-    const idx = this.indexInCache + delta;
+    const idx = this.index + delta;
     return this.flattened[idx];
   }
   /**
