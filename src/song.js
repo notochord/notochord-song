@@ -1,11 +1,22 @@
+import Tonal from 'https://dev.jspm.io/tonal@2.2.2';
 import SongIterator from './songiterator.js';
 import {MeasureContainer} from './measure.js';
+window.Tonal = Tonal;
 
 export default class Song {
   constructor(pseudoSong = {}) {
     this._props = new Map(Object.entries({...this._makeDefaultProps(), ...pseudoSong, measures: undefined}));
     this._callbackMap = new Map();
     this.measureContainer = new MeasureContainer(this, pseudoSong.measureContainer, !pseudoSong.measureContainer);
+  }
+  /**
+   * Get the transposed key of the song
+   * @returns {string}
+   */
+  getTransposedKey() {
+    const [pc, quality] = Tonal.Chord.tokenize(this._props.get('key'));
+    const interval = Tonal.Interval.fromSemitones(this._props.get('transpose'));
+    return Tonal.transpose(pc, interval) + quality;
   }
   /**
    * Subscribe to changes to a property of the song (except measures)

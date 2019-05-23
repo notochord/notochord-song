@@ -32,7 +32,7 @@ export default class Beat {
     if(rawChord) {
       let parsed = rawChord.replace(/-/g, 'm');
       const chordParts = Tonal.Chord.tokenize(parsed);
-      if(/*transpose && */this.song.get('ranspose') && chordParts[0]) {
+      if(/*transpose && */this.song.get('transpose') && chordParts[0]) {
         chordParts[0] = Tonal.Note.enharmonic(
           Tonal.transpose(
             chordParts[0],
@@ -58,12 +58,13 @@ export default class Beat {
   }
   get chord() {
     const transpose = this.song.get('transpose');
+    const transposeInt = Tonal.Interval.fromSemitones(transpose);
     const chord = this._chord;
     if(chord) {
       if(transpose) {
         let chordParts = Tonal.Chord.tokenize(chord);
         chordParts[0] = Tonal.Note.enharmonic(
-          Tonal.transpose(chordParts[0], song.transposeInt)
+          Tonal.transpose(chordParts[0], transposeInt)
         );
         return chordParts.join('');
       } else {

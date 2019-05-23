@@ -5,7 +5,7 @@
       window.Song = Song;
 
       window.testPseudoSong = {
-        title: 'Test Song',
+        title: 'Blue Skies',
         measureContainer: {
           type: 'repeat',
           repeatInfo: {
@@ -45,7 +45,13 @@
       };
       window.song = new Song(testPseudoSong);
       window.it = song[Symbol.iterator]();
-      window.doIt = () => {const {value} = it.next(); if(value) return value.serialize()};
+      window.doIt = () => {
+        const {value, done} = it.next();
+        if(done) {
+          return 'DONE';
+        } else {
+          return value.serialize()};
+        }
     </script>
   </head>
 </html>
