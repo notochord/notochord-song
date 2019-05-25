@@ -1,6 +1,6 @@
 // Gimme import maps, I don't need this noise
 import Tonal from 'https://dev.jspm.io/tonal@2.2.2';
-//import Tonal from 'tonal';
+//import * as Tonal from 'tonal';
 
 const SCALE_DEGREES = {
   1: {numeral: 'i',   flat: false},
@@ -18,9 +18,10 @@ const SCALE_DEGREES = {
 };
 
 export default class Beat {
-  constructor(song, pseudoBeat) {
+  constructor(song, measure, index, pseudoBeat) {
     this.song = song;
-
+    this.measure = measure;
+    this.index = index;
     this.chord = pseudoBeat;
   }
   /**
@@ -28,15 +29,17 @@ export default class Beat {
    * @param {?string} rawChord 
    */
   set chord(rawChord) {
+    const oldChord = this._chord;
     this._chord = null;
     if(rawChord) {
       let parsed = rawChord.replace(/-/g, 'm');
       const chordParts = Tonal.Chord.tokenize(parsed);
-      if(/*transpose && */this.song.get('transpose') && chordParts[0]) {
+      if(this.song.get('transpose') && chordParts[0]) {
+        const transposeInt = Tonal.Interval.fromSemitones(this.song.get('transpose'));
         chordParts[0] = Tonal.Note.enharmonic(
           Tonal.transpose(
             chordParts[0],
-            Tonal.Interval.invert(song.transposeInt)
+            Tonal.Interval.invert(transposeInt)
           )
         );
       }
@@ -55,13 +58,20 @@ export default class Beat {
       parsed = chordParts.join('');
       this._chord = parsed;
     }
+    this.song._emitChange('measures', {
+      type: 'Beat.chord.set',
+      beatObject: this,
+      measureObject: this.measure,
+      oldValue: oldChord,
+      newValue: this._chord,
+    });
   }
   get chord() {
     const transpose = this.song.get('transpose');
-    const transposeInt = Tonal.Interval.fromSemitones(transpose);
     const chord = this._chord;
     if(chord) {
       if(transpose) {
+        const transposeInt = Tonal.Interval.fromSemitones(transpose);
         let chordParts = Tonal.Chord.tokenize(chord);
         chordParts[0] = Tonal.Note.enharmonic(
           Tonal.transpose(chordParts[0], transposeInt)
@@ -85,7 +95,8 @@ export default class Beat {
     const SD = SCALE_DEGREES[semis];
     return {
       numeral: minorish ? SD.numeral : SD.numeral.toUpperCase(),
-      flat: SD.flat
+      flat: SD.flat,
+      quality: chordParts[1]
     };
   }
   serialize() {

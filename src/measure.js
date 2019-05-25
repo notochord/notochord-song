@@ -28,7 +28,7 @@ export class MeasureContainer {
   }
   serialize() {
     return {
-      type: 'MeasureContainer',
+      type: this.type,
       measures: this.measures.map(measure => measure.serialize()),
       repeatInfo: this.repeatInfo
     };
@@ -62,8 +62,8 @@ export class Measure {
   constructor(song, pseudoMeasure) {
     this.song = song;
     this.length = song.get('timeSignature')[0];
-    this.beats = pseudoMeasure.map(pseudoBeat =>
-      new Beat(this.song, pseudoBeat)
+    this.beats = pseudoMeasure.map((pseudoBeat, index) =>
+      new Beat(this.song, this, index, pseudoBeat)
     );
   }
   serialize() {

@@ -4,7 +4,7 @@
   "description": "",
   "main": "src/index.js",
   "scripts": {
-    "test": "http-server"
+    "test": "npx mocha --require esm"
   },
   "repository": {
     "type": "git",
@@ -18,5 +18,9 @@
   "homepage": "https://github.com/notochord/notochord-song#readme",
   "dependencies": {
     "tonal": "^2.2.2"
+  },
+  "devDependencies": {
+    "esm": "^3.2.25",
+    "mocha": "^6.1.4"
   }
 }

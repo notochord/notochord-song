@@ -1,0 +1,17 @@
+<html>
+  <head>
+    <script type="module">
+      import Song from '../src/index.js';
+      import blueSkies from '../blueSkies.js';
+      window.song = new Song(blueSkies);
+      window.iterator = song[Symbol.iterator]();
+      window.iterate = () => {
+        const {value, done} = iterator.next();
+        if(done) {
+          return 'DONE';
+        } else {
+          return value.serialize()};
+        }
+    </script>
+  </head>
+</html>

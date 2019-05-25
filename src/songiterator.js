@@ -1,16 +1,15 @@
 export default class SongIterator {
   constructor(song) {
     this.song = song;
-    this.flattened = [...song.measureContainer]; // depends on the naive asumption that songs have finite length
-    this.index = -1;
+    this.index = 0;
   }
   /**
-   * Get a measure by absolute index
+   * Get a measure by absolute index, without advancing the iterator.
    * @param {number} idx 
    * @returns {Measure}
    */
   get(idx) {
-    return this.flattened[idx];
+    return this.song.measures[idx];
   }
   /**
    * Get a measure relative to the current one, without advancing the iterator.
@@ -19,16 +18,17 @@ export default class SongIterator {
    */
   getRelative(delta = 0) {
     const idx = this.index + delta;
-    return this.flattened[idx];
+    return this.song.measures[idx];
   }
   /**
-   * iterates over measures in playback order. See the Iterator Protocol.
+   * Iterates over measures in playback order. See the Iterator Protocol.
+   * @returns {{done: boolean, value: Measure|undefined}}
    */
   next() {
-    this.index++;
-    if(this.index < this.flattened.length) {
-      return {value: this.flattened[this.index], done: false};
+    if(this.index < this.song.measures.length) {
+      return {value: this.song.measures[this.index++], done: false};
     } else {
+      this.index++;
       return {done: true};
     }
   }

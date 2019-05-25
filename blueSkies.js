@@ -1,5 +1,7 @@
-import Song from './src/index.js';
-const pseudoSong = {
+/**
+ * Test song, which is used by other projects as well
+ */
+export default {
   title: 'Blue Skies',
   composedOn: -1357318800000,
   composer: 'Irving Berlin',
@@ -47,4 +49,3 @@ const pseudoSong = {
     ]
   }
 };
-export default new Song(pseudoSong);

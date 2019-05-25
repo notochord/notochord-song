@@ -1,13 +1,19 @@
 import Tonal from 'https://dev.jspm.io/tonal@2.2.2';
+//import * as Tonal from 'tonal';
 import SongIterator from './songiterator.js';
-import {MeasureContainer} from './measure.js';
-window.Tonal = Tonal;
+import { MeasureContainer } from './measure.js';
 
 export default class Song {
   constructor(pseudoSong = {}) {
-    this._props = new Map(Object.entries({...this._makeDefaultProps(), ...pseudoSong, measures: undefined}));
+    this._props = new Map(Object.entries({...this._makeDefaultProps(), ...pseudoSong, measureContainer: undefined}));
     this._callbackMap = new Map();
     this.measureContainer = new MeasureContainer(this, pseudoSong.measureContainer, !pseudoSong.measureContainer);
+    this.measures = [...this.measureContainer]; // depends on the naive asumption that songs have finite length
+    this.measures.forEach((measure, index) => {
+      if(measure.index === undefined) {
+        measure.index = index;
+      }
+    });
   }
   /**
    * Get the transposed key of the song
@@ -19,23 +25,30 @@ export default class Song {
     return Tonal.transpose(pc, interval) + quality;
   }
   /**
-   * Subscribe to changes to a property of the song (except measures)
-   * @param {string} prop Property to subscribe to changes to
-   * @param {function} callback Function that gets called when the property updates
+   * Subscribe to changes to a property of the song (except measureContainer)
+   * @param {string} property Property to subscribe to changes to
+   * @param {function} callback Function that is passed the new value when the property updates
    */
-  onChange(prop, callback) {
-    if(!this._callbackMap.has(prop)) this._callbackMap.set(prop, new Set())
-    this._callbackMap.get(prop).add(callback);
+  onChange(property, callback) {
+    if(!this._callbackMap.has(property)) this._callbackMap.set(property, new Set())
+    this._callbackMap.get(property).add(callback);
   }
-  get(prop) {
-    return this._props.get(prop);
+  /**
+   * Get a property of the song (except measureContainer)
+   * @param {string} property 
+   * @returns {*} The value of that property (or undefined)
+   */
+  get(property) {
+    return this._props.get(property);
   }
-  set(prop, value) {
-    this._props.set(prop, value);
-    const cbs = this._callbackMap.get(prop);
-    if(cbs) {
-      for(const cb of cbs) cb(value);
-    }
+  /**
+   * Set a property of the song, and notify those subscribed to changes to that property.
+   * @param {string} property 
+   * @param {*} value 
+   */
+  set(property, value) {
+    this._props.set(property, value);
+    this._emitChange(property, value);
   }
   /**
    * Generate default prop values. Can't just use a constant because the dates
@@ -57,8 +70,18 @@ export default class Song {
       timeSignature: [4,4]
     };
   }
+  _emitChange(prop, value) {
+    const cbs = this._callbackMap.get(prop);
+    if(cbs) {
+      for(const cb of cbs) cb(value);
+    }
+  }
   serialize() {
-    const out = Object.fromEntries(this._props);
+    // aww Object.fromEntries isn't ready yet :(
+    const out = {};
+    for(const [key, val] of this._props) {
+      out[key] = val;
+    }
     out.measureContainer = this.measureContainer.serialize();
     return out;
   }
