@@ -1,6 +1,6 @@
-import { strict as assert } from 'assert';
-import Song from '../src/index.js';
-import blueSkies from '../blueSkies.js';
+const assert = require('assert').strict;
+const Song = require('../dist/notochord-song.cjs');
+const blueSkies = require('../blueSkies.js');
 
 describe('Song', () => {
   describe('#getTransposedKey()', () => {
@@ -85,8 +85,10 @@ describe('Song', () => {
   describe('#serialize()', () => {
     it('returns a similar value to the imported pseudosong', () => {
       const song = new Song(blueSkies);
+      const origKeys = new Set(Object.keys(blueSkies));
+      const serializedKeys = new Set(Object.keys(song.serialize()));
       // deepEqual on the serialized thing itself fails because of chord aliases
-      assert.deepEqual(Object.keys(song.serialize()), Object.keys(blueSkies));
+      assert.deepEqual(serializedKeys, origKeys);
     });
   });
 });

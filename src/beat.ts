@@ -1,6 +1,7 @@
-// Gimme import maps, I don't need this noise
-import Tonal from 'https://dev.jspm.io/tonal@2.2.2';
-//import * as Tonal from 'tonal';
+import Song from './song';
+import { Measure } from './measure';
+import * as _Tonal from 'tonal';
+const Tonal = (_Tonal as any).default || _Tonal;
 
 const SCALE_DEGREES = {
   1: {numeral: 'i',   flat: false},
@@ -18,6 +19,11 @@ const SCALE_DEGREES = {
 };
 
 export default class Beat {
+  public song: Song;
+  public measure: Measure;
+  public index?: number;
+  private _chord: string;
+
   constructor(song, measure, index, pseudoBeat) {
     this.song = song;
     this.measure = measure;
@@ -40,7 +46,7 @@ export default class Beat {
           Tonal.transpose(
             chordParts[0],
             Tonal.Interval.invert(transposeInt)
-          )
+          ) as string
         );
       }
       
@@ -74,7 +80,7 @@ export default class Beat {
         const transposeInt = Tonal.Interval.fromSemitones(transpose);
         let chordParts = Tonal.Chord.tokenize(chord);
         chordParts[0] = Tonal.Note.enharmonic(
-          Tonal.transpose(chordParts[0], transposeInt)
+          Tonal.transpose(chordParts[0], transposeInt) as string
         );
         return chordParts.join('');
       } else {
@@ -98,6 +104,9 @@ export default class Beat {
       flat: SD.flat,
       quality: chordParts[1]
     };
+  }
+  set scaleDegree(rawScaleDegree) {
+    throw new Error('scaleDegree must not be set');
   }
   serialize() {
     return this.chord;

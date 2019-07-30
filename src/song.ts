@@ -1,12 +1,26 @@
-import Tonal from 'https://dev.jspm.io/tonal@2.2.2';
-//import * as Tonal from 'tonal';
 import SongIterator from './songiterator.js';
-import { MeasureContainer } from './measure.js';
+import { Measure, MeasureContainer } from './measure';
+import * as _Tonal from 'tonal';
+const Tonal = (_Tonal as any).default || _Tonal;
 
 export default class Song {
-  constructor(pseudoSong = {}) {
-    this._props = new Map(Object.entries({...this._makeDefaultProps(), ...pseudoSong, measureContainer: undefined}));
-    this._callbackMap = new Map();
+  private props: Map<string, any>;
+  private callbackMap: Map<string, Set<(newValue: any) => void>>;
+  public measureContainer: MeasureContainer;
+  public measures: Measure[];
+
+  private static DEFAULTS = {
+    title: '',
+    tempo: 120,
+    key: 'C' as IKey,
+    transpose: 0,
+    timeSignature: [4,4] as [number, number],
+    measureContainer: null,
+  }
+
+  constructor(pseudoSong: ISongData = Song.DEFAULTS) {
+    this.props = new Map(Object.entries({...this._makeDefaultProps(), ...pseudoSong, measureContainer: undefined}));
+    this.callbackMap = new Map();
     this.measureContainer = new MeasureContainer(this, pseudoSong.measureContainer, !pseudoSong.measureContainer);
     this.measures = [...this.measureContainer]; // depends on the naive asumption that songs have finite length
     this.measures.forEach((measure, index) => {
@@ -20,8 +34,8 @@ export default class Song {
    * @returns {string}
    */
   getTransposedKey() {
-    const [pc, quality] = Tonal.Chord.tokenize(this._props.get('key'));
-    const interval = Tonal.Interval.fromSemitones(this._props.get('transpose'));
+    const [pc, quality] = Tonal.Chord.tokenize(this.props.get('key'));
+    const interval = Tonal.Interval.fromSemitones(this.props.get('transpose'));
     return Tonal.transpose(pc, interval) + quality;
   }
   /**
@@ -30,8 +44,8 @@ export default class Song {
    * @param {function} callback Function that is passed the new value when the property updates
    */
   onChange(property, callback) {
-    if(!this._callbackMap.has(property)) this._callbackMap.set(property, new Set())
-    this._callbackMap.get(property).add(callback);
+    if(!this.callbackMap.has(property)) this.callbackMap.set(property, new Set())
+    this.callbackMap.get(property).add(callback);
   }
   /**
    * Get a property of the song (except measureContainer)
@@ -39,7 +53,7 @@ export default class Song {
    * @returns {*} The value of that property (or undefined)
    */
   get(property) {
-    return this._props.get(property);
+    return this.props.get(property);
   }
   /**
    * Set a property of the song, and notify those subscribed to changes to that property.
@@ -47,7 +61,7 @@ export default class Song {
    * @param {*} value 
    */
   set(property, value) {
-    this._props.set(property, value);
+    this.props.set(property, value);
     this._emitChange(property, value);
   }
   /**
@@ -71,19 +85,19 @@ export default class Song {
     };
   }
   _emitChange(prop, value) {
-    const cbs = this._callbackMap.get(prop);
+    const cbs = this.callbackMap.get(prop);
     if(cbs) {
       for(const cb of cbs) cb(value);
     }
   }
   serialize() {
     // aww Object.fromEntries isn't ready yet :(
-    const out = {};
-    for(const [key, val] of this._props) {
+    const out = {measureContainer: null};
+    for(const [key, val] of this.props) {
       out[key] = val;
     }
     out.measureContainer = this.measureContainer.serialize();
-    return out;
+    return out as ISongData;
   }
   [Symbol.iterator]() {
     return new SongIterator(this);

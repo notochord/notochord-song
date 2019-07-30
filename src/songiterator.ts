@@ -1,4 +1,9 @@
+import Song from "./song";
+
 export default class SongIterator {
+  public song: Song;
+  public index?: number;
+
   constructor(song) {
     this.song = song;
     this.index = 0;

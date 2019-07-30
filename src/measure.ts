@@ -1,10 +1,28 @@
 import Beat from './beat.js';
+import Song from './song.js';
+
+function isMeasureContainer(value): value is ISongDataMeasureContainer {
+  return !!value.type;
+}
 
 /**
  * Handles repeats and stuff
  */
 export class MeasureContainer {
-  constructor(song, pseudoContainer = {measures: [], repeatInfo: {}}, fill = false) {
+  public type: 'repeat' | 'ending';
+  public measures: (Measure | MeasureContainer)[];
+  public repeatInfo: {
+    repeatCount?: number;
+    ending?: number;
+  };
+
+  private static DEFAULTS = {
+    measures: [],
+    repeatInfo: {},
+    type: null,
+  }
+
+  constructor(song, pseudoContainer: ISongDataMeasureContainer = MeasureContainer.DEFAULTS, fill = false) {
     this.type = pseudoContainer.type || 'repeat';
     if(fill) {
       const songLength = 8;
@@ -17,7 +35,7 @@ export class MeasureContainer {
     } else {
       this.measures = [];
       for(const pseudoMeasure of pseudoContainer.measures) {
-        if(pseudoMeasure.type) {
+        if(isMeasureContainer(pseudoMeasure)) {
           this.measures.push(new MeasureContainer(song, pseudoMeasure));
         } else {
           this.measures.push(new Measure(song, pseudoMeasure));
@@ -33,32 +51,34 @@ export class MeasureContainer {
       repeatInfo: this.repeatInfo
     };
   }
-  *[Symbol.iterator]() {
-    if(this.type == 'repeat') {
-      for(let repeat = 1; repeat <= this.repeatInfo.repeatCount; repeat++) {
-        m: for(const measure of this.measures) {
-          if(measure instanceof MeasureContainer) {
-            if(measure.type == 'repeat') {
+  *[Symbol.iterator](): Iterator<Measure> {
+    const repeatCount = this.type == 'repeat' ? this.repeatInfo.repeatCount : 1;
+    for(let repeat = 1; repeat <= repeatCount; repeat++) {
+      m: for(const measure of this.measures) {
+        if(measure instanceof MeasureContainer) {
+          if(measure.type == 'repeat') {
+            yield* measure;
+          } else if(measure.type == 'ending') {
+            if(measure.repeatInfo.ending == repeat) {
               yield* measure;
-            } else if(measure.type == 'ending') {
-              if(measure.repeatInfo.ending == repeat) {
-                yield* measure;
-              } else {
-                continue m;
-              }
+            } else {
+              continue m;
             }
-          } else {
-            yield measure;
           }
+        } else {
+          yield measure;
         }
       }
-    } else {
-      yield* this.measures;
     }
   }
 }
 
 export class Measure {
+  public song: Song;
+  public index?: number;
+  public length: number;
+  public beats: Beat[];
+
   constructor(song, pseudoMeasure) {
     this.song = song;
     this.length = song.get('timeSignature')[0];

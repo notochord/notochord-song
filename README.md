@@ -11,20 +11,15 @@ that make it well-suited for this purpose:
 - Handles transposition of chords
 - Allows subscription to changes
 
-## Testing
+## NPM scripts
 
 ```shell
+# Build
+npm run-script build
+
+# Run test suite
 npm test
 ```
-
-This has a mocha test suite that uses @std/esm to "just work" with ES modules
-until Node figures out what they're doing. Since there's no transpilation step
-and browser import maps aren't a thing yet, the source code has to change
-between the test suite and the browser to import [tonal](http://danigb.github.io/tonal/index.html).
-That is, you literally have to change the source code for the test suite to run.
-Sorry 'bout that, I'll figure out a better solution later.
-
-The files whose imports need to change are `song.js` and `beat.js`.
 
 ## Usage
 

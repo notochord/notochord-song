@@ -1,10 +1,12 @@
 {
   "name": "notochord-song",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "",
-  "main": "src/index.js",
+  "main": "dist/notochord-song.node.cjs",
   "scripts": {
-    "test": "npx mocha --require esm"
+    "test": "npx mocha",
+    "build": "npx rollup -c; npm run-script build-declarations",
+    "build-declarations": "npx tsc -d --emitDeclarationOnly --out notochord-song.js"
   },
   "repository": {
     "type": "git",
@@ -20,7 +22,14 @@
     "tonal": "^2.2.2"
   },
   "devDependencies": {
-    "esm": "^3.2.25",
-    "mocha": "^6.1.4"
+    "mocha": "^6.1.4",
+    "rollup": "^1.17.0",
+    "rollup-plugin-alias": "^1.5.2",
+    "rollup-plugin-banner": "^0.2.0",
+    "rollup-plugin-node-resolve": "^5.2.0",
+    "rollup-plugin-terser": "^5.1.1",
+    "rollup-plugin-typescript": "^1.0.1",
+    "tslib": "^1.10.0",
+    "typescript": "^3.5.3"
   }
 }

@@ -1,8 +1,8 @@
 <html>
   <head>
     <script type="module">
-      import Song from '../src/index.js';
-      import blueSkies from '../blueSkies.js';
+      import Song from '../dist/notochord-song.web.mjs';
+      import blueSkies from '../blueSkies.mjs';
       window.song = new Song(blueSkies);
       window.iterator = song[Symbol.iterator]();
       window.iterate = () => {
@@ -10,8 +10,9 @@
         if(done) {
           return 'DONE';
         } else {
-          return value.serialize()};
-        }
+          return value.serialize()
+        };
+      }
     </script>
   </head>
 </html>
