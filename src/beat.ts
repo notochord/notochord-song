@@ -1,4 +1,4 @@
-import Song from './song';
+import Song from './notochord-song';
 import { Measure } from './measure';
 import * as _Tonal from 'tonal';
 const Tonal = (_Tonal as any).default || _Tonal;

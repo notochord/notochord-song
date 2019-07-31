@@ -7,7 +7,7 @@ const preamble = 'notochord-song by Jacob Bloom\nThis software is provided as-is
 
 export default [
   {
-    input: './src/index.ts',
+    input: './src/notochord-song.ts',
     output: {
       file: './dist/notochord-song.cjs',
       format: 'cjs'
@@ -19,7 +19,7 @@ export default [
     ]
   },
   {
-    input: './src/index.ts',
+    input: './src/notochord-song.ts',
     output: {
       file: './dist/notochord-song.node.mjs',
       format: 'esm'
@@ -31,7 +31,7 @@ export default [
     ]
   },
   {
-    input: './src/index.ts',
+    input: './src/notochord-song.ts',
     output: {
       file: './dist/notochord-song.web.mjs',
       format: 'esm'
@@ -44,7 +44,7 @@ export default [
     ]
   },
   /*{
-    input: './src/index.ts',
+    input: './src/notochord-song.ts',
     output: {
       file: './dist/notochord-song.min.js',
       name: 'Song',

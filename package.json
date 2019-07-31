@@ -3,10 +3,11 @@
   "version": "1.1.0",
   "description": "",
   "main": "dist/notochord-song.node.cjs",
+  "types": "types/notochord-song.d.ts",
   "scripts": {
     "test": "npx mocha",
     "build": "npx rollup -c; npm run-script build-declarations",
-    "build-declarations": "npx tsc -d --emitDeclarationOnly --out notochord-song.js"
+    "build-declarations": "npx tsc -d --emitDeclarationOnly --declarationDir types/"
   },
   "repository": {
     "type": "git",

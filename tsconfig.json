@@ -9,7 +9,7 @@
     "downlevelIteration": true,
   },
   "files": [
-    "src/index.ts",
+    "src/notochord-song.ts",
     "src/interfaces.d.ts"
   ],
 }

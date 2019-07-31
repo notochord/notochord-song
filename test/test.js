@@ -1,6 +1,6 @@
 const assert = require('assert').strict;
 const Song = require('../dist/notochord-song.cjs');
-const blueSkies = require('../blueSkies.js');
+const blueSkies = require('../blueSkies.cjs');
 
 describe('Song', () => {
   describe('#getTransposedKey()', () => {

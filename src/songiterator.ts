@@ -1,4 +1,4 @@
-import Song from "./song";
+import Song from "./notochord-song";
 
 export default class SongIterator {
   public song: Song;
