@@ -3,7 +3,7 @@ import { Measure } from "./measure";
 
 export default class SongIterator {
   public song: Song;
-  public index = 0;
+  public index = -1;
 
   public constructor(song: Song) {
     this.song = song;
@@ -30,9 +30,10 @@ export default class SongIterator {
    * @returns {{done: boolean, value: Measure|undefined}}
    */
   public next(): IteratorResult<Measure | undefined> { // https://github.com/microsoft/TypeScript/issues/11375 fixed in July 2019 version of TS
-    if(this.index < this.song.measures.length) {
+    if(this.index < this.song.measures.length - 1) {
+      this.index++;
       return {
-        value: this.song.measures[this.index++],
+        value: this.song.measures[this.index],
         done: false,
       };
     } else {

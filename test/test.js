@@ -106,9 +106,11 @@ describe('SongIterator', () => {
     it('returns value relative to iterator index', () => {
       const song = new Song(blueSkies);
       const songIterator = song[Symbol.iterator]();
-      assert.equal(songIterator.getRelative(1), song.measures[1]);
+      assert.equal(songIterator.index, -1);
+      assert.equal(songIterator.getRelative(1), song.measures[0]);
       songIterator.next();
-      assert.equal(songIterator.getRelative(1), song.measures[2]);
+      assert.equal(songIterator.index, 0);
+      assert.equal(songIterator.getRelative(1), song.measures[1]);
     });
   });
 
@@ -116,10 +118,24 @@ describe('SongIterator', () => {
     it('iterates over song.measures following the Iterator Protocol', () => {
       const song = new Song(blueSkies);
       const songIterator = song[Symbol.iterator]();
-      for(const measure of song.measures) {
+      for(let i = 0; i < song.measures.length; i++) {
         const {done, value} = songIterator.next();
+        assert.equal(value, song.measures[i]);
         assert.equal(done, false);
-        assert.equal(value, measure);
+      }
+      const {done, value} = songIterator.next();
+      assert.equal(done, true);
+      assert.equal(value, undefined);
+    });
+    it('Index is consistent with the previous .next value', () => {
+      const song = new Song(blueSkies);
+      const songIterator = song[Symbol.iterator]();
+      assert.equal(songIterator.index, -1);
+      for(let i = 0; i < song.measures.length; i++) {
+        const {done, value} = songIterator.next();
+        assert.equal(songIterator.index, i);
+        assert.equal(done, false);
+        assert.equal(value, song.measures[i]);
       }
       const {done, value} = songIterator.next();
       assert.equal(done, true);

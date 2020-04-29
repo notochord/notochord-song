@@ -7,7 +7,7 @@ import _Tonal__default, {  } from 'tonal';
 
 class SongIterator {
     constructor(song) {
-        this.index = 0;
+        this.index = -1;
         this.song = song;
     }
     /**
@@ -32,9 +32,10 @@ class SongIterator {
      * @returns {{done: boolean, value: Measure|undefined}}
      */
     next() {
-        if (this.index < this.song.measures.length) {
+        if (this.index < this.song.measures.length - 1) {
+            this.index++;
             return {
-                value: this.song.measures[this.index++],
+                value: this.song.measures[this.index],
                 done: false,
             };
         }
