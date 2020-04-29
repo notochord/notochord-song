@@ -5,6 +5,7 @@
   "main": "dist/notochord-song.node.cjs",
   "types": "types/notochord-song.d.ts",
   "scripts": {
+    "lint": "npx eslint src/**/*.ts --fix",
     "test": "npx mocha",
     "build": "npx rollup -c; npm run-script build-declarations",
     "build-declarations": "npx tsc -d --emitDeclarationOnly --declarationDir types/"
@@ -24,6 +25,9 @@
   },
   "devDependencies": {
     "mocha": "^6.1.4",
+    "@typescript-eslint/eslint-plugin": "^2.21.0",
+    "@typescript-eslint/parser": "^2.21.0",
+    "eslint": "^6.8.0",
     "rollup": "^1.17.0",
     "rollup-plugin-alias": "^1.5.2",
     "rollup-plugin-banner": "^0.2.0",

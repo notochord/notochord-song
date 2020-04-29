@@ -1,19 +1,19 @@
 import Song from "./notochord-song";
+import { Measure } from "./measure";
 
 export default class SongIterator {
   public song: Song;
-  public index?: number;
+  public index = 0;
 
-  constructor(song) {
+  public constructor(song: Song) {
     this.song = song;
-    this.index = 0;
   }
   /**
    * Get a measure by absolute index, without advancing the iterator.
    * @param {number} idx 
    * @returns {Measure}
    */
-  get(idx) {
+  public get(idx: number): Measure {
     return this.song.measures[idx];
   }
   /**
@@ -21,7 +21,7 @@ export default class SongIterator {
    * @param {number} [delta=0] 
    * @returns {Measure}
    */
-  getRelative(delta = 0) {
+  public getRelative(delta = 0): Measure {
     const idx = this.index + delta;
     return this.song.measures[idx];
   }
@@ -29,12 +29,18 @@ export default class SongIterator {
    * Iterates over measures in playback order. See the Iterator Protocol.
    * @returns {{done: boolean, value: Measure|undefined}}
    */
-  next() {
+  public next(): IteratorResult<Measure | undefined> { // https://github.com/microsoft/TypeScript/issues/11375 fixed in July 2019 version of TS
     if(this.index < this.song.measures.length) {
-      return {value: this.song.measures[this.index++], done: false};
+      return {
+        value: this.song.measures[this.index++],
+        done: false,
+      };
     } else {
       this.index++;
-      return {done: true};
+      return {
+        value: undefined,
+        done: true,
+      };
     }
   }
 }

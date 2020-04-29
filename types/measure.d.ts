@@ -11,8 +11,8 @@ export declare class MeasureContainer {
         ending?: number;
     };
     private static DEFAULTS;
-    constructor(song: any, pseudoContainer?: ISongDataMeasureContainer, fill?: boolean);
-    serialize(): any;
+    constructor(song: Song, pseudoContainer?: SongDataMeasureContainer, fill?: boolean);
+    serialize(): SongDataMeasureContainer;
     [Symbol.iterator](): Iterator<Measure>;
 }
 export declare class Measure {
@@ -20,6 +20,6 @@ export declare class Measure {
     index?: number;
     length: number;
     beats: Beat[];
-    constructor(song: any, pseudoMeasure: any);
-    serialize(): any[];
+    constructor(song: Song, pseudoMeasure: (string | null)[]);
+    serialize(): (string | null)[];
 }

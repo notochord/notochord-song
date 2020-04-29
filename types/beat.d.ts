@@ -5,16 +5,12 @@ export default class Beat {
     measure: Measure;
     index?: number;
     private _chord;
-    constructor(song: any, measure: any, index: any, pseudoBeat: any);
+    constructor(song: Song, measure: Measure, index: number, pseudoBeat: string | null);
     /**
      *
      * @param {?string} rawChord
      */
-    chord: any;
-    scaleDegree: {
-        numeral: any;
-        flat: any;
-        quality: any;
-    };
-    serialize(): any;
+    chord: string | null;
+    scaleDegree: ScaleDegree | null;
+    serialize(): string | null;
 }
