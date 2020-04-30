@@ -54,6 +54,18 @@ describe('Song', () => {
       song.onChange('composer', cb);
       song.set('updatedOn', 12345);
     });
+    it('should call callbacks registered with #onChange() without a property', () => {
+      const song = new Song(blueSkies);
+      let ran = false;
+      const cb = (prop, value) => {
+        assert.equal(prop, 'key');
+        assert.equal(value, 'G');
+        ran = true;
+      };
+      song.onChange(cb);
+      song.set('key', 'G');
+      assert(ran);
+    });
   });
 
   describe('#onChange()', () => {
@@ -79,7 +91,19 @@ describe('Song', () => {
       song.onChange('measures', cb);
       song.measures[0].beats[0].chord = 'D7';
       assert(ran);
-    })
+    });
+    it('can be called without a property to subscribe to all changes', () => {
+      const song = new Song(blueSkies);
+      let ran = false;
+      const cb = (prop, value) => {
+        assert.equal(prop, 'key');
+        assert.equal(value, 'G');
+        ran = true;
+      };
+      song.onChange(cb);
+      song.set('key', 'G');
+      assert(ran);
+    });
   });
   
   describe('#serialize()', () => {

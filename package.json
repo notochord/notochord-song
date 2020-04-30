@@ -1,6 +1,6 @@
 {
   "name": "notochord-song",
-  "version": "1.1.0",
+  "version": "2.1.0",
   "description": "",
   "main": "dist/notochord-song.node.cjs",
   "types": "types/notochord-song.d.ts",

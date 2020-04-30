@@ -23,6 +23,8 @@
     "eqeqeq": "error",
     "no-cond-assign": "off",
     "no-empty": ["error", { "allowEmptyCatch": true }],
+    "no-dupe-class-members": "off",
+    "@typescript-eslint/no-dupe-class-members": ["error"],
     "@typescript-eslint/ban-ts-ignore": "off",
     "@typescript-eslint/explicit-member-accessibility": "error",
     "@typescript-eslint/no-explicit-any": "off",

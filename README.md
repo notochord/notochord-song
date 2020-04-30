@@ -77,6 +77,10 @@ const song = new Song({
   song.onChange('composer', newValue => console.log(newValue));
   song.set('composer', 'Irving Berlin'); // logs "Irving Berlin"
 
+  // you can also subscribe to all changes to any property of the song
+  song.onChange((changedProperty, newValue) => console.log(changedProperty, newValue));
+  song.set('composer', 'Irving Berlin'); // logs "composer", "Irving Berlin"
+
 
   // you can iterate over the measures of the song
   for(const measure of song) {

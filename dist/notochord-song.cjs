@@ -235,6 +235,7 @@ class Measure {
 const Tonal$1 = _Tonal__default || _Tonal;
 class Song {
     constructor(pseudoSong = Song.DEFAULTS) {
+        this.anyCallbacks = [];
         this.props = new Map(Object.entries(Object.assign({}, this._makeDefaultProps(), pseudoSong, { measureContainer: undefined })));
         this.callbackMap = new Map();
         this.measureContainer = new MeasureContainer(this, pseudoSong.measureContainer || undefined, !pseudoSong.measureContainer);
@@ -254,18 +255,18 @@ class Song {
         const interval = Tonal$1.Interval.fromSemitones(this.props.get('transpose'));
         return Tonal$1.transpose(pc, interval) + quality;
     }
-    /**
-     * Subscribe to changes to a property of the song (except measureContainer)
-     * @param {string} property Property to subscribe to changes to
-     * @param {function} callback Function that is passed the new value when the property updates
-     */
-    onChange(property, callback) {
-        if (!this.callbackMap.has(property))
-            this.callbackMap.set(property, new Set());
-        this.callbackMap.get(property).add(callback);
+    onChange(propertyOrCallback, callback) {
+        if (typeof propertyOrCallback === 'string') {
+            if (!this.callbackMap.has(propertyOrCallback))
+                this.callbackMap.set(propertyOrCallback, new Set());
+            this.callbackMap.get(propertyOrCallback).add(callback);
+        }
+        else {
+            this.anyCallbacks.push(propertyOrCallback);
+        }
     }
     /**
-     * Get a property of the song (except measureContainer)
+     * Get a property of the song (except measureContainer, use "measures" for measures)
      * @param {string} property
      * @returns {*} The value of that property (or undefined)
      */
@@ -307,6 +308,8 @@ class Song {
             for (const cb of cbs)
                 cb(value);
         }
+        for (const cb of this.anyCallbacks)
+            cb(prop, value);
     }
     serialize() {
         // aww Object.fromEntries isn't ready yet :(

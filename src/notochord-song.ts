@@ -5,6 +5,7 @@ const Tonal = (_Tonal as any).default || _Tonal;
 
 export default class Song {
   private props: Map<string, any>;
+  private anyCallbacks: ((property: string, value: any) => void)[] = [];
   private callbackMap: Map<string, Set<(newValue: any) => void>>;
   public measureContainer: MeasureContainer;
   public measures: Measure[];
@@ -39,16 +40,22 @@ export default class Song {
     return Tonal.transpose(pc, interval) + quality;
   }
   /**
-   * Subscribe to changes to a property of the song (except measureContainer)
+   * Subscribe to changes to a property of the song (except measureContainer, use "measures" for measures)
    * @param {string} property Property to subscribe to changes to
    * @param {function} callback Function that is passed the new value when the property updates
    */
-  public onChange(property: string, callback: (newValue: any) => void): void {
-    if(!this.callbackMap.has(property)) this.callbackMap.set(property, new Set())
-    this.callbackMap.get(property)!.add(callback);
+  public onChange(callback: (property: string, value: any) => void): void;
+  public onChange(property: string, callback: (newValue: any) => void): void;
+  public onChange(propertyOrCallback: string | ((property: string, value: any) => void), callback?: (newValue: any) => void): void {
+    if (typeof propertyOrCallback === 'string') {
+      if(!this.callbackMap.has(propertyOrCallback)) this.callbackMap.set(propertyOrCallback, new Set())
+      this.callbackMap.get(propertyOrCallback)!.add(callback!);
+    } else {
+      this.anyCallbacks.push(propertyOrCallback);
+    }
   }
   /**
-   * Get a property of the song (except measureContainer)
+   * Get a property of the song (except measureContainer, use "measures" for measures)
    * @param {string} property 
    * @returns {*} The value of that property (or undefined)
    */
@@ -89,6 +96,7 @@ export default class Song {
     if(cbs) {
       for(const cb of cbs) cb(value);
     }
+    for(const cb of this.anyCallbacks) cb(prop, value);
   }
   public serialize(): SongData {
     // aww Object.fromEntries isn't ready yet :(

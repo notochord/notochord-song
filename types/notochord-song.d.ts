@@ -2,6 +2,7 @@ import SongIterator from './songiterator.js';
 import { Measure, MeasureContainer } from './measure';
 export default class Song {
     private props;
+    private anyCallbacks;
     private callbackMap;
     measureContainer: MeasureContainer;
     measures: Measure[];
@@ -13,13 +14,14 @@ export default class Song {
      */
     getTransposedKey(): string;
     /**
-     * Subscribe to changes to a property of the song (except measureContainer)
+     * Subscribe to changes to a property of the song (except measureContainer, use "measures" for measures)
      * @param {string} property Property to subscribe to changes to
      * @param {function} callback Function that is passed the new value when the property updates
      */
+    onChange(callback: (property: string, value: any) => void): void;
     onChange(property: string, callback: (newValue: any) => void): void;
     /**
-     * Get a property of the song (except measureContainer)
+     * Get a property of the song (except measureContainer, use "measures" for measures)
      * @param {string} property
      * @returns {*} The value of that property (or undefined)
      */
