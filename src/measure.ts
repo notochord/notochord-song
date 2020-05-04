@@ -1,5 +1,5 @@
-import Beat from './beat';
-import Song from './notochord-song';
+import { Beat } from './beat';
+import { Song } from './song';
 
 function isMeasureContainer(value: any): value is SongDataMeasureContainer {
   return !!value.type;

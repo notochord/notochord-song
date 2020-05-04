@@ -1,7 +1,7 @@
-import Song from "./notochord-song";
+import { Song } from "./song";
 import { Measure } from "./measure";
 
-export default class SongIterator {
+export class SongIterator {
   public song: Song;
   public index = -1;
 

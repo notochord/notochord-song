@@ -22,8 +22,10 @@ type SongDataMeasureContainer = {
   };
   measures: ( SongDataMeasureContainer | (null | string)[] )[];
 };
-interface ScaleDegree {
-  numeral: string;
-  flat: boolean;
+type RootLetter = 'A' | 'B' | 'C' | 'D' | 'E' | 'F' | 'G';
+type RootNumeral = 'I' | 'II' | 'III' | 'IV' | 'V' | 'VI' | 'VII' | 'i' | 'ii' | 'iii' | 'iv' | 'v' | 'vi' | 'vii';
+interface ChordParts {
+  rootLetter: '' | RootLetter | RootNumeral;
+  accidental: '' | '#' | 'b';
   quality: string;
 }

@@ -1,9 +1,14 @@
 {
   "name": "notochord-song",
-  "version": "2.1.0",
+  "version": "3.0.0",
   "description": "",
-  "main": "dist/notochord-song.node.cjs",
-  "types": "types/notochord-song.d.ts",
+  "main": "dist/notochord-song.cjs",
+  "type": "module",
+  "exports": {
+    "import": "dist/notochord-song.mjs",
+    "require": "dist/notochord-song.cjs"
+  },
+  "types": "types/index.d.ts",
   "scripts": {
     "lint": "npx eslint src/**/*.ts --fix",
     "test": "npx mocha",
@@ -21,7 +26,7 @@
   },
   "homepage": "https://github.com/notochord/notochord-song#readme",
   "dependencies": {
-    "tonal": "^2.2.2"
+    "@tonaljs/tonal": "^3.7.2"
   },
   "devDependencies": {
     "mocha": "^6.1.4",
@@ -29,7 +34,6 @@
     "@typescript-eslint/parser": "^2.21.0",
     "eslint": "^6.8.0",
     "rollup": "^1.17.0",
-    "rollup-plugin-alias": "^1.5.2",
     "rollup-plugin-banner": "^0.2.0",
     "rollup-plugin-node-resolve": "^5.2.0",
     "rollup-plugin-terser": "^5.1.1",

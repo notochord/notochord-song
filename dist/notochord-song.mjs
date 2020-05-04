@@ -2,8 +2,7 @@
  * notochord-song by Jacob Bloom
  * This software is provided as-is, yadda yadda yadda
  */
-import * as _Tonal from 'https://dev.jspm.io/tonal@2.2.2';
-import _Tonal__default, {  } from 'https://dev.jspm.io/tonal@2.2.2';
+import { Chord, Interval, Note } from '@tonaljs/tonal';
 
 class SongIterator {
     constructor(song) {
@@ -49,20 +48,20 @@ class SongIterator {
     }
 }
 
-const Tonal = _Tonal__default || _Tonal;
 const SCALE_DEGREES = {
-    1: { numeral: 'i', flat: false },
-    2: { numeral: 'ii', flat: true },
-    3: { numeral: 'ii', flat: false },
-    4: { numeral: 'iii', flat: true },
-    5: { numeral: 'iii', flat: false },
-    6: { numeral: 'iv', flat: false },
-    7: { numeral: 'v', flat: true },
-    8: { numeral: 'v', flat: false },
-    9: { numeral: 'vi', flat: true },
-    10: { numeral: 'vi', flat: false },
-    11: { numeral: 'vii', flat: true },
-    12: { numeral: 'vii', flat: false }
+    '1P': { rootLetter: 'i', accidental: '' },
+    '2m': { rootLetter: 'ii', accidental: 'b' },
+    '2M': { rootLetter: 'ii', accidental: '' },
+    '3m': { rootLetter: 'iii', accidental: 'b' },
+    '3M': { rootLetter: 'iii', accidental: '' },
+    '4P': { rootLetter: 'iv', accidental: '' },
+    '4A': { rootLetter: 'v', accidental: 'b' },
+    '5d': { rootLetter: 'v', accidental: 'b' },
+    '5P': { rootLetter: 'v', accidental: '' },
+    '6m': { rootLetter: 'vi', accidental: 'b' },
+    '6M': { rootLetter: 'vi', accidental: '' },
+    '7m': { rootLetter: 'vii', accidental: 'b' },
+    '7M': { rootLetter: 'vii', accidental: '' }
 };
 class Beat {
     constructor(song, measure, index, pseudoBeat) {
@@ -77,29 +76,52 @@ class Beat {
      */
     set chord(rawChord) {
         const oldChord = this._chord;
-        this._chord = null;
-        if (rawChord) {
-            let parsed = rawChord.replace(/-/g, 'm');
-            const chordParts = Tonal.Chord.tokenize(parsed);
-            if (this.song.get('transpose') && chordParts[0]) {
-                const transposeInt = Tonal.Interval.fromSemitones(this.song.get('transpose'));
-                chordParts[0] = Tonal.Note.enharmonic(Tonal.transpose(chordParts[0], Tonal.Interval.invert(transposeInt)));
-            }
-            // get the shortest chord name
-            if (chordParts[1]) {
-                const names = Tonal.Chord.props(chordParts[1]).names;
-                if (names && names.length) {
-                    chordParts[1] = names
-                        .reduce((l, r) => l.length <= r.length ? l : r)
-                        .replace(/_/g, 'm7');
-                }
-                else {
-                    chordParts[1] = '';
-                }
-            }
-            parsed = chordParts.join('');
-            this._chord = parsed;
-        }
+        this._chord = this.getTransposedBy(rawChord, -1 * (this.song.get('transpose') || 0));
+        this.emitChange(oldChord);
+    }
+    get chord() {
+        return this.getTransposedBy(this._chord, this.song.get('transpose') || 0);
+    }
+    getScaleDegreeParts() {
+        const chord = this._chord;
+        if (!chord)
+            return null;
+        const [rootPart, quality] = Chord.tokenize(chord);
+        // ignore transposition because it's relative to the 1
+        const semis = Interval.distance(this.song.get('key'), rootPart);
+        if (!semis)
+            return null;
+        const { quality: capsQuality } = Chord.get(chord);
+        const minorish = capsQuality === 'Diminished' || capsQuality === 'Minor';
+        const { rootLetter, accidental } = SCALE_DEGREES[semis];
+        return {
+            rootLetter: minorish ? rootLetter : rootLetter.toUpperCase(),
+            accidental,
+            quality,
+        };
+    }
+    getChordParts() {
+        const chord = this.chord;
+        if (!chord)
+            return null;
+        const [rootPart, quality] = Chord.tokenize(chord);
+        let accidental = '';
+        if (rootPart[1] === 'b')
+            accidental = 'b';
+        if (rootPart[1] === '#')
+            accidental = '#';
+        return {
+            rootLetter: rootPart[0],
+            accidental,
+            quality,
+        };
+    }
+    changeBySemitones(semitones) {
+        const oldChord = this._chord;
+        this._chord = this.getTransposedBy(this._chord, semitones);
+        this.emitChange(oldChord);
+    }
+    emitChange(oldChord) {
         this.song._emitChange('measures', {
             type: 'Beat.chord.set',
             beatObject: this,
@@ -108,41 +130,20 @@ class Beat {
             newValue: this._chord,
         });
     }
-    get chord() {
-        const transpose = this.song.get('transpose');
-        const chord = this._chord;
-        if (chord) {
-            if (transpose) {
-                const transposeInt = Tonal.Interval.fromSemitones(transpose);
-                const chordParts = Tonal.Chord.tokenize(chord);
-                chordParts[0] = Tonal.Note.enharmonic(Tonal.transpose(chordParts[0], transposeInt));
-                return chordParts.join('');
-            }
-            else {
-                return chord;
-            }
+    getTransposedBy(chord, semitones) {
+        if (!chord)
+            return null;
+        const chordEscaped = chord.replace(/-/g, 'm');
+        const transposeInt = Interval.fromSemitones(semitones);
+        const transposed = Chord.transpose(chordEscaped, transposeInt);
+        const { tonic, aliases } = Chord.get(transposed);
+        const shortestName = aliases ? aliases.reduce((l, r) => l.length <= r.length ? l : r) : '';
+        if (tonic) {
+            return Note.simplify(tonic) + shortestName.replace(/_/g, 'm7');
         }
         else {
             return null;
         }
-    }
-    get scaleDegree() {
-        const chord = this._chord;
-        if (!chord)
-            return null;
-        const chordParts = Tonal.Chord.tokenize(chord);
-        // ignore transposition because it's relative to the 1
-        const semis = Tonal.Distance.semitones(this.song.get('key'), chordParts[0]) + 1;
-        const minorish = chordParts[1][0] === 'm' || chordParts[1][0] === 'o';
-        const SD = SCALE_DEGREES[semis];
-        return {
-            numeral: minorish ? SD.numeral : SD.numeral.toUpperCase(),
-            flat: SD.flat,
-            quality: chordParts[1]
-        };
-    }
-    set scaleDegree(rawScaleDegree) {
-        throw new Error('scaleDegree must not be set');
     }
     serialize() {
         return this.chord;
@@ -228,7 +229,6 @@ class Measure {
     }
 }
 
-const Tonal$1 = _Tonal__default || _Tonal;
 class Song {
     constructor(pseudoSong = Song.DEFAULTS) {
         this.anyCallbacks = [];
@@ -247,9 +247,9 @@ class Song {
      * @returns {string}
      */
     getTransposedKey() {
-        const [pc, quality] = Tonal$1.Chord.tokenize(this.props.get('key'));
-        const interval = Tonal$1.Interval.fromSemitones(this.props.get('transpose'));
-        return Tonal$1.transpose(pc, interval) + quality;
+        const [pc, quality] = Chord.tokenize(this.props.get('key'));
+        const interval = Interval.fromSemitones(this.props.get('transpose'));
+        return Note.transpose(pc, interval) + quality;
     }
     onChange(propertyOrCallback, callback) {
         if (typeof propertyOrCallback === 'string') {
@@ -329,4 +329,4 @@ Song.DEFAULTS = {
     measureContainer: null,
 };
 
-export default Song;
+export { Beat, Measure, MeasureContainer, Song, SongIterator };

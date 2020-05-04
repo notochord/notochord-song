@@ -1,6 +1,6 @@
-import SongIterator from './songiterator.js';
+import { SongIterator } from './songiterator.js';
 import { Measure, MeasureContainer } from './measure';
-export default class Song {
+export declare class Song {
     private props;
     private anyCallbacks;
     private callbackMap;

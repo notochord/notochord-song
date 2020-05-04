@@ -1,6 +1,6 @@
-import Song from './notochord-song';
+import { Song } from './song';
 import { Measure } from './measure';
-export default class Beat {
+export declare class Beat {
     song: Song;
     measure: Measure;
     index?: number;
@@ -11,6 +11,10 @@ export default class Beat {
      * @param {?string} rawChord
      */
     chord: string | null;
-    scaleDegree: ScaleDegree | null;
+    getScaleDegreeParts(): ChordParts | null;
+    getChordParts(): ChordParts | null;
+    changeBySemitones(semitones: number): void;
+    private emitChange;
+    private getTransposedBy;
     serialize(): string | null;
 }

@@ -7,8 +7,7 @@
     "noImplicitAny": true,
     "strictNullChecks": true
   },
-  "files": [
-    "src/notochord-song.ts",
-    "src/interfaces.d.ts"
+  "include": [
+    "src/"
   ],
 }

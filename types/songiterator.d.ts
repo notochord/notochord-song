@@ -1,6 +1,6 @@
-import Song from "./notochord-song";
+import { Song } from "./song";
 import { Measure } from "./measure";
-export default class SongIterator {
+export declare class SongIterator {
     song: Song;
     index: number;
     constructor(song: Song);

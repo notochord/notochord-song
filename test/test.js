@@ -1,5 +1,5 @@
 const assert = require('assert').strict;
-const Song = require('../dist/notochord-song.cjs');
+const { Song } = require('../dist/notochord-song.cjs');
 const blueSkies = require('../blueSkies.cjs');
 
 describe('Song', () => {
@@ -219,6 +219,11 @@ describe('Beat', () => {
         beat.chord = 'Caug7';
         assert.equal(beat.chord, 'C+7');
       });
+      it('simplifies enharmonic chords', () => {
+        const beat = (new Song(blueSkies)).measures[0].beats[0];
+        beat.chord = 'C####';
+        assert.equal(beat.chord, 'E');
+      });
       it('respects transpose', () => {
         const song = new Song(blueSkies);
         const beat = song.measures[0].beats[0];
@@ -227,51 +232,107 @@ describe('Beat', () => {
         song.set('transpose', 0);
         assert.equal(beat.chord, 'Gm');
       });
+      it('dispatches an onChange event', () => {
+        const song = new Song(blueSkies);
+        const beat = song.measures[0].beats[0];
+        let ran = false;
+        const cb = value => {
+          assert.equal(value.oldValue, 'Am');
+          assert.equal(value.newValue, 'Abm');
+          ran = true;
+        };
+        song.onChange('measures', cb);
+        beat.chord = 'Abm';
+        assert(ran);
+      });
     });
   });
 
-  describe('#scaleDegree', () => {
+  describe('#getScaleDegreeParts()', () => {
     it('ignores transpose', () => {
       const song = new Song(blueSkies);
       const beat = song.measures[0].beats[0];
       const expected = {
-        flat: false,
-        numeral: 'vi',
+        accidental: '',
+        rootLetter: 'vi',
         quality: 'm'
       }
-      assert.deepEqual(beat.scaleDegree, expected);
+      assert.deepEqual(beat.getScaleDegreeParts(), expected);
       song.set('transpose', 1);
-      assert.deepEqual(beat.scaleDegree, expected);
+      assert.deepEqual(beat.getScaleDegreeParts(), expected);
     });
     it('capitalizes based on quality of chord', () => {
       const beat = (new Song(blueSkies)).measures[0].beats[0];
       beat.chord = 'C';
-      assert.equal(beat.scaleDegree.numeral, 'I');
+      assert.equal(beat.getScaleDegreeParts().rootLetter, 'I');
       beat.chord = 'C-';
-      assert.equal(beat.scaleDegree.numeral, 'i');
+      assert.equal(beat.getScaleDegreeParts().rootLetter, 'i');
       beat.chord = 'C+';
-      assert.equal(beat.scaleDegree.numeral, 'I');
+      assert.equal(beat.getScaleDegreeParts().rootLetter, 'I');
       beat.chord = 'Co';
-      assert.equal(beat.scaleDegree.numeral, 'i');
+      assert.equal(beat.getScaleDegreeParts().rootLetter, 'i');
     });
     it('includes quality of chord', () => {
       const beat = (new Song(blueSkies)).measures[0].beats[0];
       const expected = {
-        flat: false,
-        numeral: 'vi',
+        accidental: '',
+        rootLetter: 'vi',
         quality: 'm'
       }
-      assert.deepEqual(beat.scaleDegree, expected);
+      assert.deepEqual(beat.getScaleDegreeParts(), expected);
     });
     it('returns null if the beat is empty', () => {
       const beat = (new Song(blueSkies)).measures[0].beats[1];
-      assert.strictEqual(beat.scaleDegree, null);
+      assert.strictEqual(beat.getScaleDegreeParts(), null);
     });
-    it('throws when set (for now)', () => {
-      const beat = (new Song(blueSkies)).measures[0].beats[0];
-      assert.throws(() => {
-        beat.scaleDegree = 'C';
+  });
+
+  describe('#getChordParts()', () => {
+    it('respects transpose', () => {
+      const song = new Song(blueSkies);
+      const beat = song.measures[0].beats[0];
+      assert.deepEqual(beat.getChordParts(), {
+        accidental: '',
+        rootLetter: 'A',
+        quality: 'm'
       });
+      song.set('transpose', 1);
+      assert.deepEqual(beat.getChordParts(), {
+        accidental: 'b',
+        rootLetter: 'B',
+        quality: 'm'
+      });
+    });
+    it('returns null if the beat is empty', () => {
+      const beat = (new Song(blueSkies)).measures[0].beats[1];
+      assert.strictEqual(beat.getChordParts(), null);
+    });
+  });
+
+  describe('#changeBySemitones()', () => {
+    it('changes beat by semitones', () => {
+      const song = new Song(blueSkies);
+      const beat = song.measures[0].beats[0];
+      beat.changeBySemitones(1);
+      assert.equal(beat.chord, 'Bbm');
+    });
+    it('does not result in extra accidentals', () => {
+      const song = new Song(blueSkies);
+      const beat = song.measures[0].beats[0];
+      beat.changeBySemitones(1);
+      assert.equal(beat.chord, 'Bbm');
+      beat.changeBySemitones(1);
+      assert.equal(beat.chord, 'Bm');
+      beat.changeBySemitones(1);
+      assert.equal(beat.chord, 'Cm');
+    });
+    it('not affected by transpose', () => {
+      const song = new Song(blueSkies);
+      const beat = song.measures[0].beats[0];
+      song.set('transpose', 1);
+      assert.equal(beat.chord, 'Bbm');
+      beat.changeBySemitones(1);
+      assert.equal(beat.chord, 'Bm');
     });
   });
 });

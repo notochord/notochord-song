@@ -1,9 +1,8 @@
-import SongIterator from './songiterator.js';
+import { SongIterator }  from './songiterator.js';
 import { Measure, MeasureContainer } from './measure';
-import * as _Tonal from 'tonal';
-const Tonal = (_Tonal as any).default || _Tonal;
+import * as Tonal from '@tonaljs/tonal';
 
-export default class Song {
+export class Song {
   private props: Map<string, any>;
   private anyCallbacks: ((property: string, value: any) => void)[] = [];
   private callbackMap: Map<string, Set<(newValue: any) => void>>;
@@ -37,7 +36,7 @@ export default class Song {
   public getTransposedKey(): string {
     const [pc, quality] = Tonal.Chord.tokenize(this.props.get('key'));
     const interval = Tonal.Interval.fromSemitones(this.props.get('transpose'));
-    return Tonal.transpose(pc, interval) + quality;
+    return Tonal.Note.transpose(pc, interval) + quality;
   }
   /**
    * Subscribe to changes to a property of the song (except measureContainer, use "measures" for measures)
